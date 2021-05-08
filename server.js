@@ -46,28 +46,33 @@ const reset = (req, res) => {
     if(data.length >= 1) data.shift();
     return clientResponse(res, 205, 'text/html', '<h1>Reset</h1>');
   }
+  return notFound(req, res);
 }
 
 const home = (req, res) => {
-  clientResponse(res, 200, 'text/html', '<h1>Home Page</h1>');
+  if(req.method === 'GET') return clientResponse(res, 200, 'text/html', '<h1>Home Page</h1>');
+  return notFound(req, res);
 }
 
 const myNumb = (req, res) => {
   const { method, url } = req;
-  // structure of /myNumber/{multiplier}
-  const urlMultiplier = /^\/myNumber\/\d+$/;
-  // check if url has the multiplier structure
-  if (urlMultiplier.test(url)){
-    // take the value to multiply
-    const multiplier = Number(url.split('/')[2]);
-    // if there is not data return bad request
-    if(data.length <= 0) return badRequest(req, res);
-    // otherwise save data in an object and multiplite myNumber and multiplier
-    const multObject = {
-      value: data[0].myNumber * multiplier
-    };
-    // return the multiplication object
-    return clientResponse(res, 200, 'application/json', JSON.stringify(multObject));
+  // patch method to use multiplier
+  if(method === 'PATCH'){
+    // structure of /myNumber/{multiplier}
+    const urlMultiplier = /^\/myNumber\/\d+$/;
+    // check if url has the multiplier structure
+    if (urlMultiplier.test(url)){
+      // take the value to multiply
+      const multiplier = Number(url.split('/')[2]);
+      // if there is not data return bad request
+      if(data.length <= 0) return badRequest(req, res);
+      // otherwise save data in an object and multiplite myNumber and multiplier
+      const multObject = {
+        value: data[0].myNumber * multiplier
+      };
+      // return the multiplication object
+      return clientResponse(res, 200, 'application/json', JSON.stringify(multObject));
+    }
   }
   /*** if Post request call function call getData ***/
   if (method === 'POST') return getData(req, res, data);
@@ -77,6 +82,7 @@ const myNumb = (req, res) => {
     /*** otherwise return the value ***/
     return clientResponse(res, 200, 'application/json', JSON.stringify(data));
   }
+  return notFound(req, res);
 }
 
 const route = (path) => {
